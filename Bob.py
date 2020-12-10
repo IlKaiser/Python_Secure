@@ -1,17 +1,19 @@
 import socket
 import threading
 import random
-
+from Utils import pad,unpad
+from Crypto.PublicKey import RSA
 
 class Bob(threading.Thread):
 
     def __init__(self):
         threading.Thread.__init__(self)
         self.alice_socket  = None
-        self.cert_socket = None
+        self.cert_socket   = None
+        self.key_pair      = self.__gen_key_pair()
 
     def callback(self,conn,addr):
-        print(str(addr) + " is now connected to Bob")
+        print("[Bob]"+str(addr) + " is now connected to Bob")
         return
 
     def open_connection(self):
@@ -21,7 +23,7 @@ class Bob(threading.Thread):
             s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             s.bind((HOST, PORT))
             s.listen()
-            print("Bob is now accepting connections at port 8000")
+            print("[Bob] Now accepting connections at port 8000")
             while(True):
                 conn, addr = s.accept()
                 x = threading.Thread(target=self.callback, args=(conn,addr))
@@ -35,7 +37,17 @@ class Bob(threading.Thread):
     def connect_to_cert(self):
         cert_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         cert_socket.connect(('127.0.0.1', 9000))
-        print("Bob is now connected to Cert Authority")
+        print("[Bob] Now connected to Cert Authority")
+        cert_socket.send(pad(b'Bob'))
+        mess = cert_socket.recv(2000)
+        mess = unpad(mess)
+        if(mess == b'send'):
+            cert_socket.send(pad(self.key_pair.publickey().export_key()))
+        return
         
+    def __gen_key_pair(self):
+        return RSA.generate(2048)
+
     def run(self):
+        assert self.key_pair is not None
         return self.open_connection()
