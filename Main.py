@@ -25,17 +25,18 @@ time.sleep(0.1)
     A --Connect_to--> C
     C <--Connected--> B
 """
+### Protocol
 """
-1. B --Pk_bc--> C
+0. B --Pk_bc--> C
    A --Pk_ac--> C
 
-2. A --------Nonce,Timestamp--------> C
+1. A --------Nonce,Timestamp--------> C
    C --Pk_ac(Nonce,Timestamp),Pk_c--> A
 
-3. A --Pk_ac(Ab_key,Timestamp)-------------> C
+2. A --Pk_ac(Ab_key,Timestamp,Port)-------------> C
    C --Pk_bc(Ab_key,Timestamp,Alice_Port)--> B
 
-4. B --K_ab(Timestamp)--> A 
+3. B --K_ab(Timestamp)--> A 
 
 """
 

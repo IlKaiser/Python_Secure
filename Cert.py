@@ -31,10 +31,10 @@ class Cert(threading.Thread):
         data = unpad(data)
         decoded = data.decode("utf-8")
         ## If ALICE
-        if(re.match(r'Alice on [0-9]{4,5}',decoded)):
+        if(decoded == 'Alice'):
 
             ## Handshake
-            self.alice_port   = int(decoded.split("on")[1])
+            #self.alice_port   = int(decoded.split("on")[1])
             self.alice_socket = conn
             self.alice_socket.send(pad(b'send'))
             self.alice_pub_key = RSA.import_key(unpad(self.alice_socket.recv(2000)))
@@ -77,7 +77,8 @@ class Cert(threading.Thread):
                 ## Reciva AB key from A
                 ab_key_enc = self.alice_socket.recv(256)
                 ab_key     = cipher_rsa_c.decrypt(ab_key_enc)
-                print("[Auth] recvd key from Alice")
+                self.alice_port = int(cipher_rsa_c.decrypt(self.alice_socket.recv(256)).decode())
+                print("[Auth] recvd key and port from Alice")
 
                 ## Send AB Key and TS To bob
                 self.bob_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

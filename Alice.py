@@ -55,7 +55,7 @@ class Alice(threading.Thread):
         cert_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         cert_socket.connect(('127.0.0.1', 9000))
         print("[Alice] Now connected to Cert Authority")
-        cert_socket.send(pad(b'Alice on '+bytes(str(self.PORT),"utf-8")))
+        cert_socket.send(pad(b'Alice'))
         b = cert_socket.recv(2000)
         b = unpad(b)
         if(b == b'send'):
@@ -91,6 +91,7 @@ class Alice(threading.Thread):
             ## Send Symmetric-Key to C and wait for Bob
             cipher_rsa_c = PKCS1_OAEP.new(self.c_pub_key)
             cert_socket.send(cipher_rsa_c.encrypt(self.ab_key))
+            cert_socket.send(cipher_rsa_c.encrypt(str(self.PORT).encode()))
         except:
             print("[Alice] See Ya")
             return
